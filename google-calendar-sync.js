@@ -1,7 +1,8 @@
 /*!
- * @fileoverview 홍동달력 - 시트 데이터를 캘린더로 일괄 동기화
- * @version 0.9.0
+ * @fileoverview 홍동달력
+ * 홍동마을 실무자들이 함께 만드는 공유달력을 위한 Google Apps Script입니다. 스프레드시트의 일정 데이터를 캘린더로 동기화합니다. 시트에서 추가, 수정, 삭제를 일괄 실행할 수 있습니다.
  *
+ * @version 0.9.1
  * @author ungki https://github.com/ungki/googleCalendarSync
  * @see https://developers.google.com/apps-script/reference/calendar
  *
@@ -10,7 +11,7 @@
  */
 
 function main() {
-  const activesheetByName = 'process.env.ACTIVE_SHEET_BY_NAME';
+  const activesheetByName = 'example.env.ACTIVE_SHEET_BY_NAME';
   const sheet = SpreadsheetApp.getActive().getSheetByName(activesheetByName);
   const range = sheet.getDataRange();
   const values = range.getValues();
@@ -32,8 +33,16 @@ function main() {
   // Logger.log("countColumns : ", countColumns);
 }
 
+/**
+ * 스프레드시트를 캘린더로 동기화
+ *
+ * @see https://developers.google.com/apps-script/reference/spreadsheet
+ *
+ * @param {object} values from active sheet data
+ * @param {object} range A range consisting of all the data in the spreadsheet
+ */
 function syncCalendar(values, range) {
-  const calendarId = 'process.env.CALENDAR_ID';
+  const calendarId = 'example.env.CALENDAR_ID';
   const hongdongCalendar = CalendarApp.getCalendarById(calendarId);
   hongdongCalendar.setTimeZone('Asia/Seoul');
 
@@ -77,6 +86,7 @@ function syncCalendar(values, range) {
           entry[10] = event.getLastUpdated();
         }
       } catch (e) {
+        entry[0] = '⚠️';
         console.error('Publish Error: ' + e);
       }
     }
@@ -128,6 +138,7 @@ function syncCalendar(values, range) {
         entry[9] = event.getCreators();
         entry[10] = event.getLastUpdated();
       } catch (e) {
+        entry[0] = '⚠️';
         console.error('Delete Error: ' + e);
       }
     }
@@ -146,12 +157,18 @@ function syncCalendar(values, range) {
  *
  * @param {Date} date A Date object
  * @param {Date} time A Date object
- * @return {Date} combined date and time
+ * @return {Date} combined date and time | default 12:00
  */
 function createDateTime(date, time) {
   date = new Date(date);
-  date.setHours(time.getHours());
-  date.setMinutes(time.getMinutes());
+
+  if (!isNaN(new Date(time))) {
+    date.setHours(time.getHours());
+    date.setMinutes(time.getMinutes());
+  } else {
+    date.setHours(12);
+    date.setMinutes(0);
+  }
 
   return date;
 }
@@ -164,10 +181,10 @@ function createDateTime(date, time) {
  * @return {string} combined descripion and link or descripion only
  */
 function createDescription(desc, link) {
-  const pattern =
+  const linkPattern =
     /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?/g;
 
-  if (pattern.test(link)) {
+  if (linkPattern.test(link)) {
     return (
       desc.toString().trim() + `\n\n\uD83D\uDD17 ` + link.toString().trim()
     );
@@ -181,7 +198,7 @@ function createDescription(desc, link) {
  */
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('process.env.MENU_NAME')
+    .createMenu('example.env.MENU_NAME')
     .addItem('동기화', 'main')
     .addToUi();
 }
