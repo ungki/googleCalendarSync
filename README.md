@@ -6,15 +6,15 @@
 
 \* required
 
-| status \*         | title \* | date \* | start time | end time | description \* | link   | location | UID    | creators | update date |
+| \* status         | \* title | \* date | start time | end time | \* description | link   | location | UID    | creators | update date |
 | ----------------- | -------- | ------- | ---------- | -------- | -------------- | ------ | -------- | ------ | -------- | ----------- |
 | string (dropdown) | string   | Date    | Date       | Date     | string         | string | string   | string | string   | Date        |
 
 1. 실행할 때는 상태에서 `추가`, `수정`, `삭제` 작업을 선택할 수 있습니다. 실행 후에는 결과 아이콘으로 자동 변경됩니다.
 
-- 발행 완료 `✅`
-- 삭제 완료 `☑️`
-- 오류 경고 `⚠️`
+- 발행 완료 :white_check_mark:
+- 삭제 완료 :ballot_box_with_check:
+- 오류 경고 :warning:
 
 2. 상태, 제목, 날짜, 설명은 필수항목입니다.
 3. UID, 편집자, 업데이트 날짜는 자동생성됩니다. 시트에서 변경할 수 없습니다.
